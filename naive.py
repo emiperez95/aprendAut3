@@ -60,11 +60,11 @@ class Naive:
             total = np.log(1)
             for i, elem in enumerate(tupl):
                 if self.attTypes[i] == 0:
-                    # print(i, elem, j)
-                    if j in self.dataDist[i][elem]:
-                        cellCount = self.dataDist[i][elem][j]
-                    else:
+                    print(i, elem, j)
+                    if elem not in self.dataDist[i] or j not in self.dataDist[i][elem]:
                         cellCount = 0
+                    else:
+                        cellCount = self.dataDist[i][elem][j]
                 multiplier = self.normal(self.dataDist[i][j], elem) if self.attTypes[i] == 1 else np.log((cellCount + m*p))-np.log((value + m))
                 if multiplier == None:
                     multiplier = np.log(m*p)-np.log((value + m))
@@ -88,25 +88,25 @@ class Naive:
 
 
 
-# # data = [
-# #     [1, 2, 3, 1, 2, 3, 1],
-# #     [2, 3, 5, 1, 3, 4, 0],
-# #     [2, 3, 4, 5, 1, 2, 1],
-# #     [2, 3, 5, 1, 3, 4, 1],
-# #     [2, 3, 5, 1, 3, 4, 1],
-# #     [2, 3, 5, 1, 3, 4, 0],
-# #     [2, 3, 5, 1, 3, 4, 0],
-# #     [3, 4, 6, 2, 5, 6, 1]
-# # ]
+# data = [
+#     [1, 2, 3, 1, 2, 3, 1],
+#     [2, 3, 5, 1, 3, 4, 0],
+#     [2, 3, 4, 5, 1, 2, 1],
+#     [2, 3, 5, 1, 3, 4, 1],
+#     [2, 3, 5, 1, 3, 4, 1],
+#     [2, 3, 5, 1, 3, 4, 0],
+#     [2, 3, 5, 1, 3, 4, 0],
+#     [3, 4, 6, 2, 5, 6, 1]
+# ]
 # data = [
 #     [0, 0, 1, 2, 3, 0],
-#     [0, 1, 1, 2, 3, 1],
+#     [0, 1, 2, 2, 3, 1],
 #     [1, 0, 1, 2, 3, 0],
-#     [1, 1, 1, 2, 3, 1]
+#     [1, 1, 2, 2, 3, 1]
 # ]
 # attTypes = [1, 1, 0, 0, 0] 
 
 # a = Naive(np.array(data), attTypes)
 # pp.pprint(a.dataDist)
 # pp.pprint(a.classDist)
-# print(a.classify([0.5, 0.5, 1, 2, 3]))
+# print(a.classify([0.5, 0, 2, 2, 3]))
