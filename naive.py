@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.stats as sp
-import pprint
+import pprint as pp
 
 class Naive:
     def __init__(self, data, attTypes, **kwargs): #Data tiene que ser de numpy
@@ -20,7 +20,7 @@ class Naive:
 
         for i, col in enumerate(data.T[:-1]):
             colType = attTypes[i]
-            
+            self.dataDist[i] = {}
             if colType == 0: #Valor cualitativo
                 for j, cell in enumerate(col):
                     if cell not in self.dataDist[i]:
@@ -41,8 +41,8 @@ class Naive:
                     if classJ not in classVal:
                         classVal[classJ] = []
                     classVal[classJ].append(cell)
-                for key, val in classVal:
-                    self.dataDist[key] = {
+                for key, val in classVal.items():
+                    self.dataDist[i][key] = {
                         "mean" : np.mean(val),
                         "stdv" : np.std(val)
                     }
@@ -54,35 +54,59 @@ class Naive:
         p = 1/self.dataLen
         m = 1
         probsSum = 0
-        maxProb = 0
+        maxProb = None
         maxargv = -1
-        for clas, value in self.classDist:
-            total = 1
+        for j, value in self.classDist.items():
+            total = np.log(1)
             for i, elem in enumerate(tupl):
-                total *= self.normal(self.dataDist[i], elem) if self.attTypes[i] == 1 else (self.dataDist[i] + m*p)/(value + m)
-            probsSum += total
-            if total > maxProb:
+                if self.attTypes[i] == 0:
+                    # print(i, elem, j)
+                    if j in self.dataDist[i][elem]:
+                        cellCount = self.dataDist[i][elem][j]
+                    else:
+                        cellCount = 0
+                multiplier = self.normal(self.dataDist[i][j], elem) if self.attTypes[i] == 1 else np.log((cellCount + m*p))-np.log((value + m))
+                if multiplier == None:
+                    multiplier = np.log(m*p)-np.log((value + m))
+                total += multiplier
+                # print("Total: {}, var {}, att{}".format(multiplier, j, i))
+            probsSum += np.power(np.e,total)
+            print(j, total)
+            if maxProb == None or total > maxProb:
                 maxProb = total
-                maxargv = value
-        return maxargv, maxProb/probsSum
+                maxargv = j
+        return maxargv, np.power(np.e,maxProb)/probsSum
         
     def normal(self, dic, value):
-        return sp.stats.norm(dic['mean'], dic['stdv']).pdf(value) #TODO:
+        if dic["stdv"] == 0:
+            if value == dic["mean"]:
+                return 0
+            else:
+                return None
+        else:
+            return sp.norm(dic["mean"], dic["stdv"]).logpdf(value)
 
 
 
-data = [
-    [1, 2, 3, 1, 2, 3, 1],
-    [2, 3, 5, 1, 3, 4, 0],
-    [2, 3, 4, 5, 1, 2, 1],
-    [2, 3, 5, 1, 3, 4, 1],
-    [2, 3, 5, 1, 3, 4, 1],
-    [2, 3, 5, 1, 3, 4, 0],
-    [2, 3, 5, 1, 3, 4, 0],
-    [3, 4, 6, 2, 5, 6, 1]
-]
-attTypes = [0, 0, 0, 0, 0, 0] 
+# # data = [
+# #     [1, 2, 3, 1, 2, 3, 1],
+# #     [2, 3, 5, 1, 3, 4, 0],
+# #     [2, 3, 4, 5, 1, 2, 1],
+# #     [2, 3, 5, 1, 3, 4, 1],
+# #     [2, 3, 5, 1, 3, 4, 1],
+# #     [2, 3, 5, 1, 3, 4, 0],
+# #     [2, 3, 5, 1, 3, 4, 0],
+# #     [3, 4, 6, 2, 5, 6, 1]
+# # ]
+# data = [
+#     [0, 0, 1, 2, 3, 0],
+#     [0, 1, 1, 2, 3, 1],
+#     [1, 0, 1, 2, 3, 0],
+#     [1, 1, 1, 2, 3, 1]
+# ]
+# attTypes = [1, 1, 0, 0, 0] 
 
-a = Naive(np.array(data), attTypes)
-pprint(a.dataDist)
-pprint(a.classDist)
+# a = Naive(np.array(data), attTypes)
+# pp.pprint(a.dataDist)
+# pp.pprint(a.classDist)
+# print(a.classify([0.5, 0.5, 1, 2, 3]))
