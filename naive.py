@@ -75,7 +75,7 @@ class Naive:
             if maxProb == None or total > maxProb:
                 maxProb = total
                 maxargv = j
-        return maxargv, np.power(np.e,maxProb)/probsSum
+        return maxargv#, np.power(np.e,maxProb)/probsSum
         
     def normal(self, dic, value):
         if dic["stdv"] == 0:
