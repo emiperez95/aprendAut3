@@ -60,7 +60,6 @@ class Naive:
             total = np.log(1)
             for i, elem in enumerate(tupl):
                 if self.attTypes[i] == 0:
-                    print(i, elem, j)
                     if elem not in self.dataDist[i] or j not in self.dataDist[i][elem]:
                         cellCount = 0
                     else:
@@ -71,7 +70,6 @@ class Naive:
                 total += multiplier
                 # print("Total: {}, var {}, att{}".format(multiplier, j, i))
             probsSum += np.power(np.e,total)
-            print(j, total)
             if maxProb == None or total > maxProb:
                 maxProb = total
                 maxargv = j

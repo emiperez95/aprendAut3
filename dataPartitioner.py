@@ -1,6 +1,4 @@
 import numpy as np
-from tree import makeNode
-from poolTree import PoolTree
 import random
 import os
 
@@ -9,8 +7,9 @@ print("Creando las carpetas", end='')
 folders = ["500k", "50k", "5k"]
 sizes = [500000, 50000, 5000]
 
+PATH = "./cov_data/"
 for f in folders:
-    path = "./tree_data/"+f
+    path = PATH+f
     try:
         os.mkdir(path)
     except OSError:  
@@ -18,14 +17,15 @@ for f in folders:
     else:
         print('.', end='')
 
-evPath = "data/evaDataCover.npy"
-compPath = "data/compDataCover.npy"
+evPath = PATH + "evaDataCover.npy"
+compPath = PATH +"compDataCover.npy"
 trainPath = "/trainingData.npy"
+print()
 
 
 # +======================= LECTURA DE DATOS
 print("Leyendo datos...")
-sourceData = "data/covtype.data"
+sourceData = PATH + "covtype.data"
 allData = []
 with open(sourceData) as fl:
     for f in fl:
@@ -63,6 +63,6 @@ for folder, size in zip(folders, sizes):
     minVal = min(fullSize, partitionSize*2+size)
     for i in range(partitionSize*2, minVal):
         trainingData.append(allData[i])
-    np.save("./data/"+folder+trainPath, trainingData)
+    np.save(PATH+folder+trainPath, trainingData)
     print('.',end='')
 print()
