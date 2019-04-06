@@ -10,6 +10,7 @@ class Naive:
         self.attTypes = attTypes
         self.dataDist = {}
         self.classDist = {}
+        self.__normPdf__und = np.sqrt(2*np.pi)
         classCol = data.T[-1]
 
         for clas in classCol:
@@ -30,10 +31,6 @@ class Naive:
                         self.dataDist[i][cell][classJ] = 1 
                     else:
                         self.dataDist[i][cell][classJ] += 1
-
-                # for a in self.dataDist[i]:
-                #     for key, val in self.classDist:#TODO:
-                #         a[key] = a[key]/val
             else: # colType == 1: Valor cuantitativo
                 classVal = {}
                 for j, cell in enumerate(col):
@@ -44,16 +41,14 @@ class Naive:
                 for key, val in classVal.items():
                     self.dataDist[i][key] = {
                         "mean" : np.mean(val),
-                        "stdv" : np.std(val)
+                        "std" : np.std(val)
                     }
-                pass
-        # for a in self.classDist: #TODO:
-            # self.classDist[a] = self.classDist[a]/self.dataLength
 
+    # @profile
     def classify(self, tupl):
         p = 1/self.dataLen
         m = 1
-        probsSum = 0
+        # probsSum = 0
         maxProb = None
         maxargv = -1
         for j, value in self.classDist.items():
@@ -64,27 +59,44 @@ class Naive:
                         cellCount = 0
                     else:
                         cellCount = self.dataDist[i][elem][j]
-                multiplier = self.normal(self.dataDist[i][j], elem) if self.attTypes[i] == 1 else np.log((cellCount + m*p))-np.log((value + m))
+                    multiplier = np.log((cellCount + m*p))-np.log((value + m))
+                else:    
+                    multiplier = self.normal(self.dataDist[i][j], elem)
                 if multiplier == None:
                     multiplier = np.log(m*p)-np.log((value + m))
                 total += multiplier
                 # print("Total: {}, var {}, att{}".format(multiplier, j, i))
-            probsSum += np.power(np.e,total)
+            # probsSum += np.power(np.e,total)
             if maxProb == None or total > maxProb:
                 maxProb = total
                 maxargv = j
         return maxargv#, np.power(np.e,maxProb)/probsSum
-        
+    
+    # @profile
     def normal(self, dic, value):
-        if dic["stdv"] == 0:
+        if dic["std"] == 0:
             if value == dic["mean"]:
                 return 0
             else:
                 return None
         else:
-            return sp.norm(dic["mean"], dic["stdv"]).logpdf(value)
+            # norm = dic["norm"]
+            # retVal = norm.logpdf(value)
 
-
+            std = dic["std"]
+            mean = dic['mean']
+            retVal = self.__logVal(std, mean, value)
+            
+            # if abs(a - retVal) > 0.01 or True:
+            #     print(a, retVal)
+            #     input("")
+            return retVal
+    
+    # @profile
+    def __logVal(self, std, mean, val):
+        und = np.log(std * self.__normPdf__und)
+        exp = ((val - mean)**2)/(2*(std**2))
+        return - exp - und
 
 # data = [
 #     [1, 2, 3, 1, 2, 3, 1],
