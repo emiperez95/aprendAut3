@@ -2,6 +2,7 @@ import numpy as np
 import random
 import os
 
+random.seed(123123)
 # +=======================CREACION DE DIRECTORIOS
 print("Creando las carpetas", end='')
 folders = ["500k", "50k", "5k"]
