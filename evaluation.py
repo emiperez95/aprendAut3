@@ -8,7 +8,9 @@ class Evaluation:
       i+1: { it+1:0 for it in range(classAmm) } for i in range(classAmm)
     }
     totalScored = 0
-    for elem in testData:
+    for i, elem in enumerate(testData):
+        if i % 10000 == 0:
+          print(i, totalScored/i if i!=0 else 0)
         res = model.classify(elem[:-1])
         self.confussionMatrix[elem[-1]][res] += 1
         if res == elem[-1]:
