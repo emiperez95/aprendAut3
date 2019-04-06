@@ -1,5 +1,14 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import multiprocessing as mp
+
+
+def evaluate(model, testData, q):
+  # print(len(testData))
+  for elem in testData:
+    res = model.classify(elem[:-1])
+    q.put((elem[-1], res))
+  # print("Termine")
 
 class Evaluation:
   def __init__(self, model, testData, classAmm):
@@ -9,13 +18,54 @@ class Evaluation:
     }
     totalScored = 0
     for i, elem in enumerate(testData):
-        if i % 10000 == 0:
-          print(i, totalScored/i if i!=0 else 0)
+        # if i % 10000 == 0:
+        #   print(i, totalScored/i if i!=0 else 0)
         res = model.classify(elem[:-1])
         self.confussionMatrix[elem[-1]][res] += 1
         if res == elem[-1]:
           totalScored += 1
     self.totalPrecisionPercentage = totalScored*100/len(testData)
+
+  def __init__(self, model, testData, classAmm):
+    self.classAmm = classAmm
+    self.confussionMatrix = {
+      i+1: { it+1:0 for it in range(classAmm) } for i in range(classAmm)
+    }
+    totalScored = 0
+    totalElems = 0
+    dataLen = len(testData)
+    CHUNK_SIZE = 1000
+    procAmm = round(dataLen/CHUNK_SIZE)
+    q = mp.Queue()
+
+    procArr = []
+    for i in range(procAmm):
+      lim1 = i*CHUNK_SIZE
+      lim2 = (i+1)*CHUNK_SIZE
+      # print(lim1, lim2)
+      p = mp.Process(target = evaluate, args=(model, testData[lim1:lim2], q))
+      procArr.append(p)
+
+    # procArr = [mp.Process(target=evaluate, args=(model,testData[i*CHUNK_SIZE:(i+1)*CHUNK_SIZE], q)) for i in range(procAmm)]
+
+    for p in procArr:
+      p.start()
+
+    while len(mp.active_children()) > 0:
+      while not q.empty():
+        elem = q.get()
+        totalElems += 1
+        self.confussionMatrix[elem[0]][elem[1]] += 1
+        if elem[1] == elem[0]:
+          totalScored += 1
+    while not q.empty():
+      elem = q.get()
+      totalElems += 1
+      self.confussionMatrix[elem[0]][elem[1]] += 1
+      if elem[1] == elem[0]:
+        totalScored += 1
+
+    self.totalPrecisionPercentage = totalScored*100/dataLen
 
   def __str__(self):
     return str(self.confussionMatrix)
