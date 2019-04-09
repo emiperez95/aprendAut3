@@ -3,28 +3,30 @@ import matplotlib.pyplot as plt
 import multiprocessing as mp
 
 
-def evaluate(model, testData, q):
+def evaluate(model, testData, q, times):
   # print(len(testData))
-  for elem in testData:
+  for ind, elem in enumerate(testData):
     res = model.classify(elem[:-1])
     q.put((elem[-1], res))
+    length = len(testData)
+    # print('#',times*length + ind)
   # print("Termine")
 
 class Evaluation:
-  def __init__(self, model, testData, classAmm):
-    self.classAmm = classAmm
-    self.confussionMatrix = {
-      i+1: { it+1:0 for it in range(classAmm) } for i in range(classAmm)
-    }
-    totalScored = 0
-    for i, elem in enumerate(testData):
-        # if i % 10000 == 0:
-        #   print(i, totalScored/i if i!=0 else 0)
-        res = model.classify(elem[:-1])
-        self.confussionMatrix[elem[-1]][res] += 1
-        if res == elem[-1]:
-          totalScored += 1
-    self.totalPrecisionPercentage = totalScored*100/len(testData)
+  # def __init__(self, model, testData, classAmm):
+  #   self.classAmm = classAmm
+  #   self.confussionMatrix = {
+  #     i+1: { it+1:0 for it in range(classAmm) } for i in range(classAmm)
+  #   }
+  #   totalScored = 0
+  #   for i, elem in enumerate(testData):
+  #       # if i % 10000 == 0:
+  #       #   print(i, totalScored/i if i!=0 else 0)
+  #       res = model.classify(elem[:-1])
+  #       self.confussionMatrix[elem[-1]][res] += 1
+  #       if res == elem[-1]:
+  #         totalScored += 1
+  #   self.totalPrecisionPercentage = totalScored*100/len(testData)
 
   def __init__(self, model, testData, classAmm):
     self.classAmm = classAmm
@@ -34,16 +36,16 @@ class Evaluation:
     totalScored = 0
     totalElems = 0
     dataLen = len(testData)
-    CHUNK_SIZE = 1000
-    procAmm = round(dataLen/CHUNK_SIZE)
+    # CHUNK_SIZE = 1
+    # procAmm = round(dataLen/CHUNK_SIZE)
+    procAmm = 4
+    CHUNK_SIZE = round(dataLen/procAmm)
     q = mp.Queue()
-
     procArr = []
     for i in range(procAmm):
       lim1 = i*CHUNK_SIZE
-      lim2 = (i+1)*CHUNK_SIZE
-      # print(lim1, lim2)
-      p = mp.Process(target = evaluate, args=(model, testData[lim1:lim2], q))
+      lim2 = (i+1)*CHUNK_SIZE if i < procAmm-1 else None
+      p = mp.Process(target = evaluate, args=(model, testData[lim1:lim2], q, i))
       procArr.append(p)
 
     # procArr = [mp.Process(target=evaluate, args=(model,testData[i*CHUNK_SIZE:(i+1)*CHUNK_SIZE], q)) for i in range(procAmm)]
@@ -64,7 +66,6 @@ class Evaluation:
       self.confussionMatrix[elem[0]][elem[1]] += 1
       if elem[1] == elem[0]:
         totalScored += 1
-
     self.totalPrecisionPercentage = totalScored*100/dataLen
 
   def __str__(self):
