@@ -169,17 +169,25 @@ class Evaluation:
     print('|-|', end="")
     for i in range(self.classAmm):
       print(i+1, " |", end="")
+    print('Accuracy|', end="")
     print()
 
     print('|---:|', end="")
     for i in range(self.classAmm):
       print('---:|', end="")
+    print('---:|', end="")
     print()
 
     for row in self.confussionMatrix:
       print('|', row, ' |', end='')
+      pos = 0
+      total = 0
       for col in self.confussionMatrix[row]:
+        total += self.confussionMatrix[row][col]
+        if col == row:
+          pos = self.confussionMatrix[row][col]
         print(self.confussionMatrix[row][col], '|', end="")
+      print(str(round(pos*100/total, 2))+'%|', end="")
       print()
 
   def prettyPrintRes(self, classNameDict):
