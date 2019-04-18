@@ -3,7 +3,6 @@ import numpy as np
 from naive import Naive
 from knn2 import Knn2
 from evaluation import Evaluation
-from tree import ID3
 import time
 import cProfile
 import matplotlib.pyplot as plt
@@ -17,11 +16,6 @@ trainingData = np.load("iris_data/trainingData.npy").astype(float)
 trainData = trainingData
 competitionData = np.load("iris_data/competitionData.npy").astype(float)
 
-# ====================== COV_TYPE
-trainingData500k = np.load('cov_data/500k/trainingData.npy')
-competitionDataCov = np.load("cov_data/compDataCover.npy")
-evaluationDataCov = np.load("cov_data/evaDataCover.npy")
-
 def KNNIris(k):
   testData1 = np.load("iris_data/competitionData.npy")
   testData2 = np.load("iris_data/evaluationData.npy")
@@ -30,6 +24,23 @@ def KNNIris(k):
   model = Knn2(trainData, k)
   ev = Evaluation(model, testData, CLASS_AMM_IRIS)
   ev.normalPrint()
+
+def BayesIris():
+  testData1 = np.load("iris_data/competitionData.npy")
+  testData2 = np.load("iris_data/evaluationData.npy")
+  trainData = np.load("iris_data/trainingData.npy").astype(float)
+  testData = np.concatenate((testData1, testData2)).astype(float)
+  
+  model = Naive(trainData,[1,1,1,1])
+
+  ev = Evaluation(model, testData, CLASS_AMM_IRIS)
+  ev.normalPrint()  
+# ====================== COV_TYPE
+trainingData500k = np.load('cov_data/500k/trainingData.npy')
+competitionDataCov = np.load("cov_data/compDataCover.npy")
+evaluationDataCov = np.load("cov_data/evaDataCover.npy")
+
+
 
 
 # ======================== CORRELATION GRAPHICS ========================
