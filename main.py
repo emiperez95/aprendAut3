@@ -16,14 +16,15 @@ trainingData = np.load("iris_data/trainingData.npy").astype(float)
 trainData = trainingData
 competitionData = np.load("iris_data/competitionData.npy").astype(float)
 
-def KNNIris(k):
+def KNNIris(Ks=[1,3,7]):
   testData1 = np.load("iris_data/competitionData.npy")
   testData2 = np.load("iris_data/evaluationData.npy")
   trainData = np.load("iris_data/trainingData.npy").astype(float)
   testData = np.concatenate((testData1, testData2)).astype(float)
-  model = Knn2(trainData, k)
-  ev = Evaluation(model, testData, CLASS_AMM_IRIS)
-  ev.normalPrint()
+  for k in Ks:
+    model = Knn2(trainData, k)
+    ev = Evaluation(model, testData, CLASS_AMM_IRIS)
+    ev.normalPrint()
 
 def BayesIris():
   testData1 = np.load("iris_data/competitionData.npy")
@@ -349,3 +350,23 @@ def timeToClassify(count=360):
   plt.show()
 # ===============================================================================
 # ===============================================================================
+opcion = '10'
+while opcion != '0':
+  print ("Opciones:")
+  print ("1- Correr Bayes Ingenuo con conjunto Iris")
+  print ("2- Correr Bayes Ingenuo con conjunto CoverType con 5K,50K y 500K")
+  print ("3- Correr K-NN con conjunto Iris con k igual a 1,3 y 7")
+  print ("4- Correr K-NN con conjunto CoverType con 5K, 50K y 500K con k igual a 1,3 y 7")
+  print ("0- Salir")
+  opcion = input("Qué opción deseas ?")
+
+  if opcion == '1':
+    BayesIris()
+  elif opcion == '2':
+    NBCovType()
+  elif opcion == '3':
+    KNNIris()
+  elif opcion == '4':
+    KNNCovType()
+  elif opcion != '0':
+    print("Opción no válida")
