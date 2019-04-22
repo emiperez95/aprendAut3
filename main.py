@@ -23,19 +23,21 @@ def KNNIris(Ks=[1,3,7]):
   testData = np.concatenate((testData1, testData2)).astype(float)
   for k in Ks:
     model = Knn2(trainData, k)
+    print('>>>> for K='+str(k)+':')
     ev = Evaluation(model, testData, CLASS_AMM_IRIS)
     ev.normalPrint()
+    print()
 
 def BayesIris():
   testData1 = np.load("iris_data/competitionData.npy")
   testData2 = np.load("iris_data/evaluationData.npy")
   trainData = np.load("iris_data/trainingData.npy").astype(float)
   testData = np.concatenate((testData1, testData2)).astype(float)
-  
+
   model = Naive(trainData,[1,1,1,1])
 
   ev = Evaluation(model, testData, CLASS_AMM_IRIS)
-  ev.normalPrint()  
+  ev.normalPrint()
 # ====================== COV_TYPE
 trainingData500k = np.load('cov_data/500k/trainingData.npy')
 competitionDataCov = np.load("cov_data/compDataCover.npy")
@@ -352,13 +354,14 @@ def timeToClassify(count=360):
 # ===============================================================================
 opcion = '10'
 while opcion != '0':
-  print ("Opciones:")
+  print ("\n\nOpciones:")
   print ("1- Correr Bayes Ingenuo con conjunto Iris")
   print ("2- Correr Bayes Ingenuo con conjunto CoverType con 5K,50K y 500K")
   print ("3- Correr K-NN con conjunto Iris con k igual a 1,3 y 7")
   print ("4- Correr K-NN con conjunto CoverType con 5K, 50K y 500K con k igual a 1,3 y 7")
   print ("0- Salir")
-  opcion = input("Qué opción deseas ?")
+  opcion = input("Qué opción deseas? >> ")
+  print('\n')
 
   if opcion == '1':
     BayesIris()

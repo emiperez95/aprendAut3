@@ -28,7 +28,7 @@ class Naive:
                         self.dataDist[i][cell] = {}
                     classJ = classCol[j]
                     if classJ not in self.dataDist[i][cell]:
-                        self.dataDist[i][cell][classJ] = 1 
+                        self.dataDist[i][cell][classJ] = 1
                     else:
                         self.dataDist[i][cell][classJ] += 1
             else: # colType == 1: Valor cuantitativo
@@ -60,7 +60,7 @@ class Naive:
                     else:
                         cellCount = self.dataDist[i][elem][j]
                     multiplier = np.log((cellCount + m*p))-np.log((value + m))
-                else:    
+                else:
                     multiplier = self.normal(self.dataDist[i][j], elem)
                 if multiplier == None:
                     multiplier = np.log(m*p)-np.log((value + m))
@@ -71,7 +71,7 @@ class Naive:
                 maxProb = total
                 maxargv = j
         return maxargv#, np.power(np.e,maxProb)/probsSum
-    
+
     # @profile
     def normal(self, dic, value):
         if dic["std"] == 0:
@@ -86,17 +86,26 @@ class Naive:
             std = dic["std"]
             mean = dic['mean']
             retVal = self.__logVal(std, mean, value)
-            
+
             # if abs(a - retVal) > 0.01 or True:
             #     print(a, retVal)
             #     input("")
             return retVal
-    
+
     # @profile
     def __logVal(self, std, mean, val):
         und = np.log(std * self.__normPdf__und)
         exp = ((val - mean)**2)/(2*(std**2))
         return - exp - und
+
+    def showDists(self):
+        print('>> Attributes distributions:')
+        for i in self.dataDist:
+            print('- Attribute ', i)
+            for cl in self.dataDist:
+                print('-- Class ', cl)
+                print('--- Mean: ', self.dataDist[i][cl]['mean'])
+                print('--- Std: ', self.dataDist[i][cl]['std'])
 
 # data = [
 #     [1, 2, 3, 1, 2, 3, 1],
@@ -114,7 +123,7 @@ class Naive:
 #     [1, 0, 1, 2, 3, 0],
 #     [1, 1, 2, 2, 3, 1]
 # ]
-# attTypes = [1, 1, 0, 0, 0] 
+# attTypes = [1, 1, 0, 0, 0]
 
 # a = Naive(np.array(data), attTypes)
 # pp.pprint(a.dataDist)
